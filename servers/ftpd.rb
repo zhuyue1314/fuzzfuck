@@ -56,8 +56,9 @@ loop {
           response = "200 Passive connection established (#{pasvPort})"
         when "pasv"
           #response = "500 pasv not yet implemented"
-          datasocket = TCPSocket.new(host, 138 * 256 + 80)
-          response = "227 Entering Passive Mode (#{host.split(".").join(",")},138,80)"
+	  randport = rand(65535 - 1024 - 80) + 1024
+          datasocket = TCPServer.new(host, randport + 80)
+          response = "227 Entering Passive Mode (#{host.split(".").join(",")},#{randport / 256},80)"
         when "list"
           #s.print "125 Opening ASCII mode data connection for file list\r\n"
           send_data(`ls -l`.split("\n").join(LBRK) << LBRK, mode, datasocket)
