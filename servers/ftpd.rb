@@ -33,7 +33,7 @@ loop {
         when /^pass/
           response = "230 OK, password not required"
         when "pwd"
-          response = "257 #{Dir.pwd}"
+          response = "257 \"#{Dir.pwd}\""
         when "syst"
           response = "215 UNIX fuzzFuck v1.0 "
         when "type"
@@ -56,19 +56,26 @@ loop {
           response = "200 Passive connection established (#{pasvPort})"
         when "pasv"
           #response = "500 pasv not yet implemented"
+          datasocket = TCPSocket.new(host, 138 * 256 + 80)
           response = "227 Entering Passive Mode (#{host.split(".").join(",")},138,80)"
         when "list"
-          s.print "125 Opening ASCII mode data connection for file list\r\n"
+          #s.print "125 Opening ASCII mode data connection for file list\r\n"
           send_data(`ls -l`.split("\n").join(LBRK) << LBRK, mode, datasocket)
+          #s.print `ls -l`.split("\n").join(LBRK) << "\r\n"
           response = "226 Transfer complete"
-        when "size"
+        when "size","mdtm","retr","mlsd" #because fuckem!
+=begin
           if message == ""
             path = `pwd`
           else
             path = message
           end
           bytes = File.size(path)
-          response = "200 #{path} #{bytes}"
+=end
+          #response = "#{path} #{bytes}"
+          response = "550 Could not get file size"
+        when "cwd"
+          response = "250 Directory changed to " << Dir.pwd
         when "quit"
           response = "221 L8r"
           break #should get out of the while loop
